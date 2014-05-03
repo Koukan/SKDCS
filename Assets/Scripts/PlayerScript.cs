@@ -4,17 +4,26 @@ using System.Collections;
 public class PlayerScript : MonoBehaviour
 {
     private Animator anim;
-	public Vector2	speed = new Vector2(50, 50);
+	public Vector2 speed = new Vector2(50, 50);
+    public Vector2 speedMax = new Vector2(5, 5);
     public LayerMask mask;
     public float deltaTimeJump;
     public float wallJumpForce;
+    public float accelerationCoef = 0.01f;
+    public float jumpLooseWeightCoef = 2f;
+    public float minMass = 5;
+
+
 	private Vector2 movement;
 	private bool grounded = true;
     private int walled = 0;
     private float timeJump = 0;
     private Vector3 startposition;
-    private Vector2 hitbox;
     private float jumpActivated = 0;
+    private float speedx;
+
+    private int nbFrame = 0;
+    private Vector2 allValueOfSpeed = new Vector2(0, 0);
 
     void Start()
     {
@@ -24,22 +33,11 @@ public class PlayerScript : MonoBehaviour
         GameEventManager.GameStart += GameStart;
         GameEventManager.GameOver += GameOver;
         enabled = false;
-        CircleCollider2D    h = GetComponent<CircleCollider2D>();
-        hitbox = new Vector2(h.radius * Mathf.Abs(transform.localScale.x), h.radius * Mathf.Abs(transform.localScale.y));
+        speedx = speed.x;
     }
 
 	// Update is called once per frame
 	void Update () {
-		float inputX = Input.GetAxis("Horizontal");
-
-        if (inputX != 0)
-        {
-            if (grounded)
-                rigidbody2D.AddForce(new Vector2(speed.x * inputX, 0.1f));
-            else
-                rigidbody2D.AddForce(new Vector2(0.15f * speed.x * inputX, 0.1f));
-        }
-
         // Animation Variable
         anim.SetFloat("Speed", Mathf.Abs(rigidbody2D.velocity.x));
 
@@ -59,6 +57,7 @@ public class PlayerScript : MonoBehaviour
             {
                 rigidbody2D.velocity = new Vector2(0, 0);
                 rigidbody2D.AddForce(new Vector2(wallJumpForce * -walled, speed.y));
+                speedx = -speedx;
                 jumpActivated = 0;
             }
             else if (jumpActivated > 0.1)
@@ -68,29 +67,51 @@ public class PlayerScript : MonoBehaviour
             else
                 jumpActivated = Time.deltaTime;
 		}
+
         if (transform.position.y < -20)
             GameEventManager.TriggerGameOver();
 	}
 
-	/*void OnCollisionEnter2D(Collision2D col) 
-	{
-		if (col.gameObject.layer == LayerMask.NameToLayer("Ground"))
-			grounded = true;
-	}*/
-
 	void FixedUpdate()
 	{
+         if (grounded)
+            rigidbody2D.AddForce(new Vector2(speedx, 0.1f));
+        else
+            rigidbody2D.AddForce(new Vector2(0.1f * speedx, 0.1f));
+
 		Vector2 v = rigidbody2D.velocity;
-		rigidbody2D.velocity = new Vector2(Mathf.Clamp(v.x, -5, 5), v.y);
+        rigidbody2D.velocity = new Vector2(Mathf.Clamp(v.x, -speedMax.x, speedMax.x), v.y);
 
 		if (v.x < -0.1f && transform.localScale.x < 0 || v.x > 0.1f && transform.localScale.x > 0)
 			transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
+
+        allValueOfSpeed.x += rigidbody2D.velocity.x;
+        if (rigidbody2D.velocity.y > 0)
+            allValueOfSpeed.y += rigidbody2D.velocity.y;
+        if (nbFrame > 30)
+        {
+
+            float coef = ((allValueOfSpeed.x / nbFrame / speedMax.x) + (allValueOfSpeed.y / nbFrame / speedMax.y) * jumpLooseWeightCoef * 10f) * accelerationCoef;
+            LooseWeight(coef);
+            nbFrame = 0;
+            allValueOfSpeed = new Vector2(0, 0);
+       }
+        ++nbFrame;
 	}
 
-    void OnDrawGizmos()
+    void LooseWeight(float coef)
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + new Vector3(0, -hitbox.x, 0));
+        if (rigidbody2D.mass > minMass)
+        {
+            speedMax.x += 0.2f * coef;
+            rigidbody2D.mass -= 0.2f * coef;
+        }
+    }
+
+    void GainWeight(float coef)
+    {
+        speedMax.x -= 0.5f * coef;
+        rigidbody2D.mass += 0.2f * coef;
     }
 
     void GameStart()
@@ -123,9 +144,19 @@ public class PlayerScript : MonoBehaviour
         grounded = true;
     }
 
+    void MessageGroundStay(Collider2D other)
+    {
+        grounded = true;
+    }
+
     void MessageGroundExit(Collider2D other)
     {
         grounded = false;
+    }
+
+    void DirectionTrigger(int direction)
+    {
+        speedx = direction * Mathf.Abs(speedx);
     }
 
     void EatCake(Trap trap)
