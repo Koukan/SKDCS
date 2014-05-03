@@ -10,11 +10,15 @@ public class PlayerScript : MonoBehaviour
 	private Vector2 movement;
 	private bool grounded = false;
     private float timeJump = 0;
+    private Vector3 startposition;
 	
     void Start()
     {
         anim = GetComponent<Animator>();
         transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
+        GameEventManager.GameStart += GameStart;
+        GameEventManager.GameOver += GameOver;
+        enabled = false;
     }
 
 	// Update is called once per frame
@@ -64,8 +68,8 @@ public class PlayerScript : MonoBehaviour
                 rigidbody2D.AddForce(new Vector2(2000, speed.y));
             }
 		}
-
-
+        if (transform.position.y < -20)
+            GameEventManager.TriggerGameOver();
 	}
 
 	/*void OnCollisionEnter2D(Collision2D col) 
@@ -90,9 +94,23 @@ public class PlayerScript : MonoBehaviour
 			transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
 	}
 
-    void OnDrawGizmos()
+    /*void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, transform.position + new Vector3(1, -1, 0));
+    }*/
+
+    void GameStart()
+    {
+        startposition = transform.position;
+        enabled = true;
+        rigidbody2D.isKinematic = false;
+    }
+
+    void GameOver()
+    {
+        transform.position = startposition;
+        rigidbody2D.isKinematic = true;
+        enabled = false;
     }
 }
