@@ -136,4 +136,10 @@ public class PlayerScript : MonoBehaviour
     {
         grounded = false;
     }
+
+    void EatCake(Trap trap)
+    {
+        Debug.Log("Eat cake");
+        Destroy(trap.gameObject);
+    }
 }
