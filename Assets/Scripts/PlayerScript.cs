@@ -158,10 +158,4 @@ public class PlayerScript : MonoBehaviour
     {
         speedx = direction * Mathf.Abs(speedx);
     }
-
-    void EatCake(Trap trap)
-    {
-        Debug.Log("Eat cake");
-        Destroy(trap.gameObject);
-    }
 }
