@@ -118,6 +118,7 @@ public class PlayerScript : MonoBehaviour
     {
         transform.position = startposition;
         rigidbody2D.isKinematic = true;
+        animation.Play("Idle");
         enabled = false;
     }
 }
