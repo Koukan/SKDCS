@@ -7,11 +7,15 @@ public class PlayerScript : MonoBehaviour
 	public Vector2	speed = new Vector2(50, 50);
 	private Vector2 movement;
 	private bool	grounded = false;
+    private Vector3 startposition;
 	
     void Start()
     {
         anim = GetComponent<Animator>();
         transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
+        GameEventManager.GameStart += GameStart;
+        GameEventManager.GameOver += GameOver;
+        enabled = false;
     }
 
 	// Update is called once per frame
@@ -39,8 +43,8 @@ public class PlayerScript : MonoBehaviour
 			rigidbody2D.AddForce(new Vector2(0, speed.y));
 			grounded = false;
 		}
-
-
+        if (transform.position.y < -20)
+            GameEventManager.TriggerGameOver();
 	}
 
 	void OnCollisionEnter2D(Collision2D col) 
@@ -57,4 +61,18 @@ public class PlayerScript : MonoBehaviour
 		if (v.x < -0.1f && transform.localScale.x < 0 || v.x > 0.1f && transform.localScale.x > 0)
 			transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
 	}
+
+    void GameStart()
+    {
+        startposition = transform.position;
+        enabled = true;
+        rigidbody2D.isKinematic = false;
+    }
+
+    void GameOver()
+    {
+        transform.position = startposition;
+        rigidbody2D.isKinematic = true;
+        enabled = false;
+    }
 }
