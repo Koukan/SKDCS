@@ -11,6 +11,7 @@ public class PlayerScript : MonoBehaviour
 	private bool grounded = false;
     private float timeJump = 0;
     private Vector3 startposition;
+    private Vector2 hitbox;
 	
     void Start()
     {
@@ -19,6 +20,8 @@ public class PlayerScript : MonoBehaviour
         GameEventManager.GameStart += GameStart;
         GameEventManager.GameOver += GameOver;
         enabled = false;
+        CircleCollider2D    h = GetComponent<CircleCollider2D>();
+        hitbox = new Vector2(h.radius * Mathf.Abs(transform.localScale.x), h.radius * Mathf.Abs(transform.localScale.y));
     }
 
 	// Update is called once per frame
@@ -57,15 +60,19 @@ public class PlayerScript : MonoBehaviour
                 grounded = false;
                 timeJump = 0;
             }
-            else if (Physics2D.Raycast(transform.position, new Vector2(1, -0.5f), 1.2f, mask))
+            else
             {
-                rigidbody2D.velocity = new Vector2(0, 0);
-                rigidbody2D.AddForce(new Vector2(-2000, speed.y));
-            }
-            else if (Physics2D.Raycast(transform.position, new Vector2(-1, -0.5f), 1.2f, mask))
-            {
-                rigidbody2D.velocity = new Vector2(0, 0);
-                rigidbody2D.AddForce(new Vector2(2000, speed.y));
+                RaycastHit2D hit;
+                if ((hit = Physics2D.Raycast(transform.position, new Vector2(1, 0.5f).normalized, hitbox.x + 0.2f, mask)) && hit.collider)
+                {
+                    rigidbody2D.velocity = new Vector2(0, 0);
+                    rigidbody2D.AddForce(new Vector2(-2000, speed.y));
+                }
+                else if ((hit = Physics2D.Raycast(transform.position, new Vector2(-1, -0.5f).normalized, hitbox.x + 0.2f, mask)) && hit.collider)
+                {
+                    rigidbody2D.velocity = new Vector2(0, 0);
+                    rigidbody2D.AddForce(new Vector2(2000, speed.y));
+                }
             }
 		}
         if (transform.position.y < -20)
@@ -82,7 +89,7 @@ public class PlayerScript : MonoBehaviour
 	{
         if (!grounded && timeJump > deltaTimeJump)
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(0, -1), 0.82f, mask);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(0, -1), hitbox.x + 0.2f, mask);
             if (hit.collider != null)
                 grounded = true;
         }
@@ -94,11 +101,11 @@ public class PlayerScript : MonoBehaviour
 			transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
 	}
 
-    /*void OnDrawGizmos()
+    void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + new Vector3(1, -1, 0));
-    }*/
+        Gizmos.DrawLine(transform.position, transform.position + new Vector3(0, -hitbox.x, 0));
+    }
 
     void GameStart()
     {
