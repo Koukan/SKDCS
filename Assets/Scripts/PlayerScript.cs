@@ -9,10 +9,11 @@ public class PlayerScript : MonoBehaviour
     public float deltaTimeJump;
 	private Vector2 movement;
 	private bool grounded = false;
+    private int walled = 0;
     private float timeJump = 0;
     private Vector3 startposition;
     private Vector2 hitbox;
-	
+
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -39,7 +40,7 @@ public class PlayerScript : MonoBehaviour
         anim.SetFloat("Speed", Mathf.Abs(rigidbody2D.velocity.x));
 		
 		// 5 - Shooting
-		if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2"))
+		/*if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Fire2"))
 		{
 			WeaponScript weapon = GetComponent<WeaponScript>();
 			if (weapon != null)
@@ -47,7 +48,7 @@ public class PlayerScript : MonoBehaviour
 				// false because the player is not an enemy
 				weapon.Attack(false);
 			}
-		}
+		}*/
 
         if (!grounded)
             timeJump += Time.deltaTime;
@@ -57,12 +58,13 @@ public class PlayerScript : MonoBehaviour
             if (grounded && timeJump > deltaTimeJump)
             {
                 rigidbody2D.AddForce(new Vector2(0, speed.y));
-                grounded = false;
                 timeJump = 0;
             }
-            else
+            else if (walled != 0)
             {
-                RaycastHit2D hit;
+                rigidbody2D.velocity = new Vector2(0, 0);
+                rigidbody2D.AddForce(new Vector2(2000 * -walled, speed.y));
+                /*RaycastHit2D hit;
                 if ((hit = Physics2D.Raycast(transform.position, new Vector2(1, 0.5f).normalized, hitbox.x + 0.2f, mask)) && hit.collider)
                 {
                     rigidbody2D.velocity = new Vector2(0, 0);
@@ -72,7 +74,7 @@ public class PlayerScript : MonoBehaviour
                 {
                     rigidbody2D.velocity = new Vector2(0, 0);
                     rigidbody2D.AddForce(new Vector2(2000, speed.y));
-                }
+                }*/
             }
 		}
         if (transform.position.y < -20)
@@ -87,13 +89,6 @@ public class PlayerScript : MonoBehaviour
 
 	void FixedUpdate()
 	{
-        if (!grounded && timeJump > deltaTimeJump)
-        {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(0, -1), hitbox.x + 0.2f, mask);
-            if (hit.collider != null)
-                grounded = true;
-        }
-
 		Vector2 v = rigidbody2D.velocity;
 		rigidbody2D.velocity = new Vector2(Mathf.Clamp(v.x, -5, 5), v.y);
 
@@ -119,5 +114,25 @@ public class PlayerScript : MonoBehaviour
         transform.position = startposition;
         rigidbody2D.isKinematic = true;
         enabled = false;
+    }
+
+    void MessageWallEnter(Collider2D other)
+    {
+        walled = other.gameObject.transform.position.x > transform.position.x ? 1 : -1;
+    }
+
+    void MessageWallExit(Collider2D other)
+    {
+        walled = 0;
+    }
+
+    void MessageGroundEnter(Collider2D other)
+    {
+        grounded = true;
+    }
+
+    void MessageGroundExit(Collider2D other)
+    {
+        grounded = false;
     }
 }
