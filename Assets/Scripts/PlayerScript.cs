@@ -121,21 +121,23 @@ public class PlayerScript : MonoBehaviour
         if (rigidbody2D.mass > minMass)
         {
             speedMax.x += 0.2f * coef;
-            ChangeMass(rigidbody2D.mass - 0.2f * coef);
+            ChangeMass(-0.2f * coef);
         }
     }
 
     void GainWeight(float coef)
     {
         speedMax.x -= 0.5f * coef;
-        ChangeMass(rigidbody2D.mass + 0.2f * coef);
+        ChangeMass(0.2f * coef);
     }
 
-    void ChangeMass(float mass)
+    public void ChangeMass(float mass)
     {
-        if (mass < minMass)
-            mass = minMass;
-        rigidbody2D.mass = mass;
+        rigidbody2D.mass += mass;
+        if (rigidbody2D.mass < minMass)
+            rigidbody2D.mass = minMass;
+        else if (rigidbody2D.mass > 12)
+            GameEventManager.TriggerGameOver();
         float scale = transform.localScale.x > 0 ? 1 : -1;
         transform.localScale = new Vector2((initScale + ((rigidbody2D.mass - 10f) / 3f) / 10f) * scale, transform.localScale.y);
     }
@@ -187,6 +189,11 @@ public class PlayerScript : MonoBehaviour
     void MessageGroundExit(Collider2D other)
     {
         grounded = false;
+    }
+
+    void MessageStairStay(Collider2D other)
+    {
+        rigidbody2D.AddForce(new Vector2(200, 0));
     }
 
     void DirectionTrigger(int direction)
