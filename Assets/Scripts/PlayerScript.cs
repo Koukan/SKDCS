@@ -25,6 +25,7 @@ public class PlayerScript : MonoBehaviour
     private float initScale;
     private int nbFrame = 0;
     private Vector2 allValueOfSpeed = new Vector2(0, 0);
+    private int nbFrameJump = 0;
 
     void Start()
     {
@@ -45,8 +46,11 @@ public class PlayerScript : MonoBehaviour
 
         if (!grounded)
             timeJump += Time.deltaTime;
-
-		if (Input.GetButtonDown("Jump") || jumpActivated > 0)
+        if (Input.GetButtonUp("Jump"))
+        {
+            nbFrameJump = 0;
+        }
+        if (Input.GetButtonDown("Jump") || jumpActivated > 0)
 		{
             if (grounded && timeJump > deltaTimeJump)
             {
@@ -54,6 +58,7 @@ public class PlayerScript : MonoBehaviour
                 rigidbody2D.AddForce(new Vector2(0, speed.y));
                 timeJump = 0;
                 jumpActivated = 0;
+                nbFrameJump = 1;
             }
             else if (walled != 0 && wallJumpForce > 0)
             {
@@ -69,7 +74,17 @@ public class PlayerScript : MonoBehaviour
             else
                 jumpActivated = Time.deltaTime;
 		}
-
+        if ((nbFrameJump > 0 && Input.GetButton("Jump") && rigidbody2D.velocity.y > 0))
+        {
+            if (nbFrameJump % 8 == 0)
+            {
+                Debug.Log(nbFrameJump);
+                rigidbody2D.AddForce(new Vector2(0, speed.y / 5.0f));
+            }
+            nbFrameJump++;
+            if (nbFrameJump > 16)
+                nbFrameJump = 0;
+        }
         if (transform.position.y < -20)
             GameEventManager.TriggerGameOver();
 	}
