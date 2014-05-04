@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Trap : MonoBehaviour {
     public float duration = 1.0f;
+    public float massGain = 1.0f;
     private GameObject target;
 	// Use this for initialization
 	void Start () {
@@ -34,11 +35,11 @@ public class Trap : MonoBehaviour {
 
     void ApplyEffect()
     {
-       // target.rigidbody2D.mass += 1f;
+        target.GetComponent<PlayerScript>().ChangeMass(massGain);
     }
 
     void ReverseEffect()
     {
-       // target.rigidbody2D.mass -= 1f;
+        target.GetComponent<PlayerScript>().ChangeMass(-massGain);
     }
 }

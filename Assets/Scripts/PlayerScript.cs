@@ -22,8 +22,10 @@ public class PlayerScript : MonoBehaviour
     private float jumpActivated = 0;
     private float speedx;
 
+    private float initScale;
     private int nbFrame = 0;
     private Vector2 allValueOfSpeed = new Vector2(0, 0);
+    private int nbFrameJump = 0;
 
     void Start()
     {
@@ -34,6 +36,7 @@ public class PlayerScript : MonoBehaviour
         GameEventManager.GameOver += GameOver;
         enabled = false;
         speedx = speed.x;
+        initScale = Mathf.Abs(transform.localScale.x);
     }
 
 	// Update is called once per frame
@@ -43,8 +46,11 @@ public class PlayerScript : MonoBehaviour
 
         if (!grounded)
             timeJump += Time.deltaTime;
-
-		if (Input.GetButtonDown("Jump") || jumpActivated > 0)
+        if (Input.GetButtonUp("Jump"))
+        {
+            nbFrameJump = 0;
+        }
+        if (Input.GetButtonDown("Jump") || jumpActivated > 0)
 		{
             if (grounded && timeJump > deltaTimeJump)
             {
@@ -52,6 +58,7 @@ public class PlayerScript : MonoBehaviour
                 rigidbody2D.AddForce(new Vector2(0, speed.y));
                 timeJump = 0;
                 jumpActivated = 0;
+                nbFrameJump = 1;
             }
             else if (walled != 0 && wallJumpForce > 0)
             {
@@ -67,7 +74,16 @@ public class PlayerScript : MonoBehaviour
             else
                 jumpActivated = Time.deltaTime;
 		}
-
+        if ((nbFrameJump > 0 && Input.GetButton("Jump") && rigidbody2D.velocity.y > 0))
+        {
+            if (nbFrameJump % 8 == 0)
+            {
+                rigidbody2D.AddForce(new Vector2(0, speed.y / 5.0f));
+            }
+            nbFrameJump++;
+            if (nbFrameJump > 16)
+                nbFrameJump = 0;
+        }
         if (transform.position.y < -20)
             GameEventManager.TriggerGameOver();
 	}
@@ -104,14 +120,25 @@ public class PlayerScript : MonoBehaviour
         if (rigidbody2D.mass > minMass)
         {
             speedMax.x += 0.2f * coef;
-            rigidbody2D.mass -= 0.2f * coef;
+            ChangeMass(-0.2f * coef);
         }
     }
 
     void GainWeight(float coef)
     {
         speedMax.x -= 0.5f * coef;
-        rigidbody2D.mass += 0.2f * coef;
+        ChangeMass(0.2f * coef);
+    }
+
+    public void ChangeMass(float mass)
+    {
+        rigidbody2D.mass += mass;
+        if (rigidbody2D.mass < minMass)
+            rigidbody2D.mass = minMass;
+        else if (rigidbody2D.mass > 12)
+            GameEventManager.TriggerGameOver();
+        float scale = transform.localScale.x > 0 ? 1 : -1;
+        transform.localScale = new Vector2((initScale + ((rigidbody2D.mass - 10f) / 3f) / 10f) * scale, transform.localScale.y);
     }
 
     void GameStart()
@@ -161,6 +188,11 @@ public class PlayerScript : MonoBehaviour
     void MessageGroundExit(Collider2D other)
     {
         grounded = false;
+    }
+
+    void MessageStairStay(Collider2D other)
+    {
+        rigidbody2D.AddForce(new Vector2(200, 0));
     }
 
     void DirectionTrigger(int direction)
