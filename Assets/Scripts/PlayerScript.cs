@@ -22,6 +22,7 @@ public class PlayerScript : MonoBehaviour
     private float jumpActivated = 0;
     private float speedx;
 
+    private float initScale;
     private int nbFrame = 0;
     private Vector2 allValueOfSpeed = new Vector2(0, 0);
     private int nbFrameJump = 0;
@@ -35,6 +36,7 @@ public class PlayerScript : MonoBehaviour
         GameEventManager.GameOver += GameOver;
         enabled = false;
         speedx = speed.x;
+        initScale = Mathf.Abs(transform.localScale.x);
     }
 
 	// Update is called once per frame
@@ -118,14 +120,25 @@ public class PlayerScript : MonoBehaviour
         if (rigidbody2D.mass > minMass)
         {
             speedMax.x += 0.2f * coef;
-            rigidbody2D.mass -= 0.2f * coef;
+            ChangeMass(-0.2f * coef);
         }
     }
 
     void GainWeight(float coef)
     {
         speedMax.x -= 0.5f * coef;
-        rigidbody2D.mass += 0.2f * coef;
+        ChangeMass(0.2f * coef);
+    }
+
+    public void ChangeMass(float mass)
+    {
+        rigidbody2D.mass += mass;
+        if (rigidbody2D.mass < minMass)
+            rigidbody2D.mass = minMass;
+        else if (rigidbody2D.mass > 12)
+            GameEventManager.TriggerGameOver();
+        float scale = transform.localScale.x > 0 ? 1 : -1;
+        transform.localScale = new Vector2((initScale + ((rigidbody2D.mass - 10f) / 3f) / 10f) * scale, transform.localScale.y);
     }
 
     void GameStart()
@@ -175,6 +188,11 @@ public class PlayerScript : MonoBehaviour
     void MessageGroundExit(Collider2D other)
     {
         grounded = false;
+    }
+
+    void MessageStairStay(Collider2D other)
+    {
+        rigidbody2D.AddForce(new Vector2(200, 0));
     }
 
     void DirectionTrigger(int direction)

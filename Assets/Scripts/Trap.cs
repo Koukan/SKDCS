@@ -35,11 +35,11 @@ public class Trap : MonoBehaviour {
 
     void ApplyEffect()
     {
-        target.rigidbody2D.mass += massGain;
+        target.GetComponent<PlayerScript>().ChangeMass(massGain);
     }
 
     void ReverseEffect()
     {
-        target.rigidbody2D.mass -= massGain;
+        target.GetComponent<PlayerScript>().ChangeMass(-massGain);
     }
 }
