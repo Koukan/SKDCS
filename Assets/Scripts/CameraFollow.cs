@@ -12,13 +12,16 @@ public class CameraFollow : MonoBehaviour {
     public Vector2 maxXAndY;		// The maximum x and y coordinates the camera can have.
     public Vector2 minXAndY;		// The minimum x and y coordinates the camera can have.
     public LayerMask triggerMask;
+    public Vector2 RaycastDistance = new Vector2(15, 5);
     private Transform player;		// Reference to the player's transform.
+    private PlayerScript playerScripts;
     private Vector2 lastVelocity;
 
     void Awake()
     {
         // Setting up the reference.
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        playerScripts = player.GetComponent<PlayerScript>();
     }
 
     float     GetVelocityX()
@@ -76,7 +79,6 @@ public class CameraFollow : MonoBehaviour {
     {
         TrackPlayer();
     }
-        
 
     void TrackPlayer()
     {
@@ -89,26 +91,35 @@ public class CameraFollow : MonoBehaviour {
         RaycastHit2D hit;
         if (GetPlayerX() > targetX)
         {
-            hit = Physics2D.Raycast(transform.position, new Vector2(1, 0), 15, triggerMask);
-            if (hit && hit.collider)
+            if (playerScripts.Direction != 1)
                 checkX = false;
+            else
+            {
+                hit = Physics2D.Raycast(transform.position, new Vector2(1, 0), RaycastDistance.x, triggerMask);
+                if (hit && hit.collider)
+                    checkX = false;
+            }
+        }
+        else if (playerScripts.Direction != -1)
+        {
+            checkX = false;
         }
         else
         {
-            hit = Physics2D.Raycast(transform.position, new Vector2(-1, 0), 15, triggerMask);
+            hit = Physics2D.Raycast(transform.position, new Vector2(-1, 0), RaycastDistance.x, triggerMask);
             if (hit && hit.collider)
                 checkX = false;
         }
 
         if (GetPlayerY() > targetY)
         {
-            hit = Physics2D.Raycast(transform.position, new Vector2(0, 1), 15, triggerMask);
+            hit = Physics2D.Raycast(transform.position, new Vector2(0, 1), RaycastDistance.y, triggerMask);
             if (hit && hit.collider)
                 checkY = false;
         }
         else
         {
-            hit = Physics2D.Raycast(transform.position, new Vector2(0, -1), 15, triggerMask);
+            hit = Physics2D.Raycast(transform.position, new Vector2(0, -1), RaycastDistance.y, triggerMask);
             if (hit && hit.collider)
                 checkY = false;
         }

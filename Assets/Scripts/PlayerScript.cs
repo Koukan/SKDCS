@@ -12,7 +12,7 @@ public class PlayerScript : MonoBehaviour
     public float accelerationCoef = 0.01f;
     public float jumpLooseWeightCoef = 2f;
     public float minMass = 5;
-
+    public int Direction = 1;
 
 	private Vector2 movement;
 	private bool grounded = true;
@@ -162,5 +162,6 @@ public class PlayerScript : MonoBehaviour
     void DirectionTrigger(int direction)
     {
         speedx = direction * Mathf.Abs(speedx);
+        Direction = direction;
     }
 }
