@@ -34,11 +34,11 @@ public class Trap : MonoBehaviour {
 
     void ApplyEffect()
     {
-        target.rigidbody2D.mass += 1f;
+       // target.rigidbody2D.mass += 1f;
     }
 
     void ReverseEffect()
     {
-        target.rigidbody2D.mass -= 1f;
+       // target.rigidbody2D.mass -= 1f;
     }
 }
