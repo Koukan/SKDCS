@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c92b07e3eeb6e334db79ea4709ba2f2e
+guid: 576b882746a26ac418d4f54cbb64ae53
 TextureImporter:
   serializedVersion: 2
   mipmaps:
@@ -24,13 +24,13 @@ TextureImporter:
   maxTextureSize: 1024
   textureSettings:
     filterMode: -1
-    aniso: 1
+    aniso: -1
     mipBias: -1
-    wrapMode: 1
+    wrapMode: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -44,24 +44,6 @@ TextureImporter:
     textureFormat: -2
     compressionQuality: 50
   spriteSheet:
-    sprites:
-    - name: platforms_0
-      rect:
-        serializedVersion: 2
-        x: 1015
-        y: 457
-        width: 882
-        height: 604
-      alignment: 0
-      pivot: {x: .5, y: .5}
-    - name: platforms_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 1284
-        width: 1024
-        height: 471
-      alignment: 0
-      pivot: {x: .5, y: .5}
+    sprites: []
   spritePackingTag: 
   userData: 

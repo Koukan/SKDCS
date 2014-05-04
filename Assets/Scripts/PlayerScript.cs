@@ -134,6 +134,11 @@ public class PlayerScript : MonoBehaviour
         walled = other.gameObject.transform.position.x > transform.position.x ? 1 : -1;
     }
 
+    void MessageWallStay(Collider2D other)
+    {
+        walled = other.gameObject.transform.position.x > transform.position.x ? 1 : -1;
+    }
+
     void MessageWallExit(Collider2D other)
     {
         walled = 0;
