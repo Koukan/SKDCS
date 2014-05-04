@@ -74,6 +74,23 @@ public class CameraFollow : MonoBehaviour {
         return Mathf.Abs(transform.position.y - GetPlayerY()) > yMargin;
     }
 
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(transform.position, transform.position + new Vector3(0, RaycastDistance.y, 0));
+        Gizmos.DrawLine(transform.position, transform.position + new Vector3(RaycastDistance.x, 0, 0));
+    }
+
+    void Update()
+    {
+        float value = Screen.height / (9f / 16f);
+        if (value < Screen.width)
+            this.camera.pixelRect = new Rect((Screen.width - value) / 2, 0, value, Screen.height);
+        else
+        {
+            value = Screen.width / (16f / 9f);
+            this.camera.pixelRect = new Rect(0, (Screen.height - value) / 2, Screen.width, value);
+        }
+    }
 
     void FixedUpdate()
     {
