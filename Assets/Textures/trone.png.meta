@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c92b07e3eeb6e334db79ea4709ba2f2e
+guid: 79d61ceeba1bfda44b4e14525ff3482a
 TextureImporter:
   serializedVersion: 2
   mipmaps:
@@ -45,23 +45,14 @@ TextureImporter:
     compressionQuality: 50
   spriteSheet:
     sprites:
-    - name: platforms_0
+    - name: trone_0
       rect:
         serializedVersion: 2
-        x: 1015
-        y: 457
-        width: 882
-        height: 604
+        x: 1621
+        y: 36
+        width: 227
+        height: 419
       alignment: 0
-      pivot: {x: .5, y: .5}
-    - name: platforms_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 1284
-        width: 1024
-        height: 471
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
   spritePackingTag: 
   userData: 

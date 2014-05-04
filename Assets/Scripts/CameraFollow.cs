@@ -11,19 +11,23 @@ public class CameraFollow : MonoBehaviour {
     public float yPadding = 0f;
     public Vector2 maxXAndY;		// The maximum x and y coordinates the camera can have.
     public Vector2 minXAndY;		// The minimum x and y coordinates the camera can have.
+    public LayerMask triggerMask;
+    public Vector2 RaycastDistance = new Vector2(15, 5);
     private Transform player;		// Reference to the player's transform.
+    private PlayerScript playerScripts;
     private Vector2 lastVelocity;
 
     void Awake()
     {
         // Setting up the reference.
         player = GameObject.FindGameObjectWithTag("Player").transform;
+        playerScripts = player.GetComponent<PlayerScript>();
     }
 
     float     GetVelocityX()
     {
         float   v = player.rigidbody2D.velocity.x;
-        if (v == 0)
+        if (v < 0.1f && v > -0.1f)
             return lastVelocity.x;
         if (v > 0)
         {
@@ -55,7 +59,7 @@ public class CameraFollow : MonoBehaviour {
 
     float GetPlayerY()
     {
-        return player.position.y + yPadding * GetVelocityY();
+        return player.position.y + yPadding;
     }
 
     bool CheckXMargin()
@@ -75,21 +79,58 @@ public class CameraFollow : MonoBehaviour {
     {
         TrackPlayer();
     }
-        
 
     void TrackPlayer()
     {
         // By default the target x and y coordinates of the camera are it's current x and y coordinates.
         float targetX = transform.position.x;
         float targetY = transform.position.y;
+        bool checkX = true;
+        bool checkY = true;
+
+        RaycastHit2D hit;
+        if (GetPlayerX() > targetX)
+        {
+            if (playerScripts.Direction != 1)
+                checkX = false;
+            else
+            {
+                hit = Physics2D.Raycast(transform.position, new Vector2(1, 0), RaycastDistance.x, triggerMask);
+                if (hit && hit.collider)
+                    checkX = false;
+            }
+        }
+        else if (playerScripts.Direction != -1)
+        {
+            checkX = false;
+        }
+        else
+        {
+            hit = Physics2D.Raycast(transform.position, new Vector2(-1, 0), RaycastDistance.x, triggerMask);
+            if (hit && hit.collider)
+                checkX = false;
+        }
+
+        if (GetPlayerY() > targetY)
+        {
+            hit = Physics2D.Raycast(transform.position, new Vector2(0, 1), RaycastDistance.y, triggerMask);
+            if (hit && hit.collider)
+                checkY = false;
+        }
+        else
+        {
+            hit = Physics2D.Raycast(transform.position, new Vector2(0, -1), RaycastDistance.y, triggerMask);
+            if (hit && hit.collider)
+                checkY = false;
+        }
 
         // If the player has moved beyond the x margin...
-        if (CheckXMargin())
+        if (checkX && CheckXMargin())
             // ... the target x coordinate should be a Lerp between the camera's current x position and the player's current x position.
             targetX = Mathf.Lerp(transform.position.x, GetPlayerX(), xSmooth * Time.deltaTime);
 
         // If the player has moved beyond the y margin...
-        if (CheckYMargin())
+        if (checkY && CheckYMargin())
             // ... the target y coordinate should be a Lerp between the camera's current y position and the player's current y position.
             targetY = Mathf.Lerp(transform.position.y, GetPlayerY(), ySmooth * Time.deltaTime);
 

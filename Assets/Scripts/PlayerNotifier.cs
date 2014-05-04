@@ -15,4 +15,9 @@ public class PlayerNotifier : MonoBehaviour
     {
         player.SendMessage("Message" + message + "Exit", other, SendMessageOptions.DontRequireReceiver);
     }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        player.SendMessage("Message" + message + "Stay", other, SendMessageOptions.DontRequireReceiver);
+    }
 }
