@@ -104,8 +104,12 @@ public class PlayerScript : MonoBehaviour
     {
         transform.position = startposition;
         rigidbody2D.isKinematic = true;
-        animation.Play("Idle");
+        if (animation != null)
+            animation.Play("Idle");
         enabled = false;
+        GameEventManager.GameStart -= GameStart;
+        GameEventManager.GameOver -= GameOver;
+        Application.LoadLevel(Application.loadedLevel);
     }
 
     void MessageWallEnter(Collider2D other)
