@@ -76,7 +76,6 @@ public class PlayerScript : MonoBehaviour
         {
             if (nbFrameJump % 8 == 0)
             {
-                Debug.Log(nbFrameJump);
                 rigidbody2D.AddForce(new Vector2(0, speed.y / 5.0f));
             }
             nbFrameJump++;
